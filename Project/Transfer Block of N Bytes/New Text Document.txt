@@ -1,0 +1,51 @@
+.model small  
+ .data  
+        src_blk db 01, 02, 03, 04, 05, 06, 07, 08, 09, 0AH  
+        dest_blk db 10 dup(?)  
+        count dw 0AH  
+ .code   
+        mov  ax, @data          ; initialize data  
+        mov  ds, ax  
+        mov  es, ax  
+        mov  si, offset src_blk     ; si to point to source block  
+        mov  di, offset dest_blk    ; di to point to destination block  
+        mov  cx, count           ; initialize counter  
+        cld                    ; df=0  
+ again :  rep   movsb                   ; transfer contents  
+        mov  di, offset dest_blk    ; di to point to  
+                               ; destination block  
+        mov  bh, 0Ah            ; initialize counter  
+ up:     mov  bl, [di]             ; store result in bl  
+        mov  cx, 0204h    ; Count of digits to be  
+                         displayed in    
+                         ; ch and digits to be  
+                         mrolled in cl   
+ l1:     rol   bl, cl        ; roll bl so that msb comes  
+                         to lsb  
+        mov  dl, bl        ; load dl with data to be  
+                         displayed  
+        and  dl, 0fh       ; get only lsb  
+        cmp  dl, 09h      ; check if digit is 0-9    
+                         ; or letter A-F  
+        jbe   l12  
+        add  dl, 07h            ; if letter add 37H      
+                         ; else only add 30H  
+ l12:    add  dl, 30h  
+        mov  ah, 02       ; Function 02 under  
+                         ; INT 21H                        
+        int   21h  
+        dec  ch          ; Decrement Count  
+        jnz   l1  
+        dec  bh          ; decrement counter  
+        inc   di  
+        mov  ah, 02h            ; display space        
+                         ; between bytes  
+        mov  dl, ' '  
+        int   21h  
+        cmp  bh, 00h            ; repeat till all bytes  
+                         ; are displayed  
+        jne   up  
+        mov  ah, 4ch      ; normal termination  
+                         ; to dos  
+        int   21h  
+ end

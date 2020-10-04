@@ -1,0 +1,18 @@
+org 100h
+
+; add your code here
+MOV CX,001AH
+MOV BL,41H
+AA:
+MOV AH,02H
+MOV DL,BL
+INT 21H
+MOV DL,09H
+INT 21H
+INC BL
+LOOP AA
+ret
+
+
+
+
